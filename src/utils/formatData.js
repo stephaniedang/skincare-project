@@ -21,7 +21,7 @@ export function formatData(csvData) {
   const addProductToCategory = (categoryName, feature, productName) => {
     const category = findOrCreateCategory(sunburstData, categoryName);
     const featureCategory = findOrCreateCategory(category, feature);
-    featureCategory.children.push({ name: productName });
+    featureCategory.children.push({ name: productName, value: 1 });
   };
 
   csvData.forEach(row => {
