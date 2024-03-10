@@ -1,4 +1,21 @@
- import * as d3 from 'd3';
+import * as d3 from 'd3';
+
+function sunColorScale(node) {
+  const scale = d3.scaleSequential([0, 1], d3.interpolateYlOrRd);
+
+  const depthFactor = node.depth / 3;
+  const sizeFactor = node.value / 100;
+  const combinedFactor = Math.min(1, depthFactor * 0.5 + sizeFactor * 0.5);
+
+  return scale(combinedFactor);
+}
+
+function truncateText(text, maxLength) {
+  const minVisibleChars = 13;
+  const adjustedMaxLength = Math.max(minVisibleChars, maxLength);
+  
+  return text.length > adjustedMaxLength ? text.substring(0, adjustedMaxLength - 1) + '…' : text;
+}
 
 export function createChart(svgElement, data, options) {
     // Specify the chart’s dimensions.
@@ -38,10 +55,9 @@ export function createChart(svgElement, data, options) {
       .selectAll("path")
       .data(root.descendants().slice(1))
       .join("path")
-        .attr("fill", d => { while (d.depth > 1) d = d.parent; return color(d.data.name); })
-        .attr("fill-opacity", d => arcVisible(d.current) ? (d.children ? 0.6 : 0.4) : 0)
+        .attr("fill", d => sunColorScale(d.current))
+        .attr("fill-opacity", d => arcVisible(d.current) ? (d.children ? 0.80 : 0.2) : 0)
         .attr("pointer-events", d => arcVisible(d.current) ? "auto" : "none")
-  
         .attr("d", d => arc(d.current));
   
     // Make them clickable if they have children.
@@ -63,7 +79,19 @@ export function createChart(svgElement, data, options) {
         .attr("dy", "0.35em")
         .attr("fill-opacity", d => +labelVisible(d.current))
         .attr("transform", d => labelTransform(d.current))
-        .text(d => d.data.name);
+        .text(d => {
+          if (!d.children) {
+            const innerRadius = (d.y0 * radius + d.y1 * radius) / 2;
+            const arcLength = (d.x1 - d.x0) * innerRadius;
+
+            const avgCharWidth = 6;
+            const maxLength = Math.floor(arcLength / avgCharWidth);
+
+            return truncateText(d.data.name, maxLength);
+          } else {
+            return d.data.name;
+          }
+        });
   
     const parent = svg.append("circle")
         .datum(root)
@@ -93,13 +121,12 @@ export function createChart(svgElement, data, options) {
             const i = d3.interpolate(d.current, d.target);
             return t => d.current = i(t);
           })
-        .filter(function(d) {
-          return +this.getAttribute("fill-opacity") || arcVisible(d.target);
-        })
-          .attr("fill-opacity", d => arcVisible(d.target) ? (d.children ? 0.6 : 0.4) : 0)
-          .attr("pointer-events", d => arcVisible(d.target) ? "auto" : "none") 
-  
-          .attrTween("d", d => () => arc(d.current));
+          .filter(function(d) {
+            return +this.getAttribute("fill-opacity") || arcVisible(d.target);
+          })
+            .attr("fill-opacity", d => arcVisible(d.target) ? (d.children ? 0.8 : 0.2) : 0)
+            .attr("pointer-events", d => arcVisible(d.target) ? "auto" : "none") 
+            .attrTween("d", d => () => arc(d.current));
   
       label.filter(function(d) {
           return +this.getAttribute("fill-opacity") || labelVisible(d.target);
