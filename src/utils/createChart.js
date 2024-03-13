@@ -8,6 +8,8 @@ const categoryColors = {
   "uvaRating": "#fdbb63",
 }
 
+let selectedNode = null;
+
 function getNodeColor(node) {
   if (node.depth === 1) {
     return categoryColors[node.data.name] || "#cccccc";
@@ -125,25 +127,59 @@ export function createChart(svgElement, data, options) {
     // handle inner tooltip details
     function displaySunscreenDetails(node) {
       svg.selectAll(".sunscreen-details").remove();
-
+  
+      // Define the inner area for the details display
       const detailsGroup = svg.append("g")
-                                .attr("class", "sunscreen-details")
-                                .attr("transform", `translate(0, 0)`);
-
+                              .attr("class", "sunscreen-details")
+                              .attr("transform", `translate(0,0)`);
+  
       const details = [
-        `Name: ${node.data.name}`,
-        `Value: ${node.value}`,
+          `${node.data.name}`,
       ];
-
-      details.forEach((detail, i) => {
-        detailsGroup.append("text")
-                      .attr("y", i * 20)
+  
+      // Calculate the available circumference for text
+      const innerRadius = radius * 0.5;
+      const circumference = 2 * Math.PI * innerRadius;
+      const textLength = circumference / 3; // Use a fraction of the circumference for text length
+  
+      // Adjust text wrapping based on the available space
+      details.forEach((detail, index) => {
+          let words = detail.split(' ');
+          let line = '';
+          let y = -innerRadius / 2 + index * 20; // Adjust vertical spacing
+  
+          words.forEach((word) => {
+              let testLine = line + word + " ";
+              // Create a temporary text to measure width
+              let tempText = detailsGroup.append("text").text(testLine).attr("x", 0).attr("y", y).style("visibility", "hidden");
+              let testWidth = tempText.node().getComputedTextLength();
+  
+              if (testWidth > textLength && line.length > 0) {
+                  detailsGroup.append("text")
+                      .text(line)
+                      .attr("x", 0)
+                      .attr("y", y)
                       .attr("text-anchor", "middle")
-                      .attr("fill-opacity", 1)
-                      .style("font-size", "14px")
-                      .text(detail);
-      })
-    }
+                      .style("font-size", "12px");
+  
+                  line = word + " ";
+                  y += 20; // Move to next line
+              } else {
+                  line = testLine;
+              }
+              tempText.remove(); // Remove the temporary text
+          });
+  
+          // Add the last line
+          detailsGroup.append("text")
+              .text(line)
+              .attr("x", 0)
+              .attr("y", y)
+              .attr("text-anchor", "middle")
+              .style("font-size", "12px");
+      });
+  }
+  
   
     // Handle zoom on click.
     function clicked(event, p) {
