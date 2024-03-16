@@ -8,8 +8,6 @@ const categoryColors = {
   "uvaRating": "#fdbb63",
 }
 
-let selectedNode = null;
-
 function getNodeColor(node) {
   if (node.depth === 1) {
     return categoryColors[node.data.name] || "#cccccc";
@@ -31,12 +29,12 @@ function getNodeColor(node) {
 
     const relativeValueScale = scale(node.value);
 
-    return d3.interpolate(parentColor, d3.rgb(parentColor).brighter(2))(relativeValueScale);
+    return d3.interpolate(parentColor, d3.rgb(parentColor).brighter(1.5))(relativeValueScale);
   }
 }
 
 function truncateText(text, maxLength) {
-  const minVisibleChars = 13;
+  const minVisibleChars = 12;
   const adjustedMaxLength = Math.max(minVisibleChars, maxLength);
   
   return text.length > adjustedMaxLength ? text.substring(0, adjustedMaxLength - 1) + '…' : text;
@@ -68,7 +66,15 @@ export function createChart(svgElement, data, options) {
         .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.005))
         .padRadius(radius * 1.5)
         .innerRadius(d => d.y0 * radius)
-        .outerRadius(d => Math.max(d.y0 * radius, d.y1 * radius - 1))
+        .outerRadius(d => Math.max(d.y0 * radius, d.y1 * radius - 1));
+
+    const arcSelected = d3.arc()
+        .startAngle(d => d.x0)
+        .endAngle(d => d.x1)
+        .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.005))
+        .padRadius(radius * 1.5)
+        .innerRadius(d => d.y0 * radius)
+        .outerRadius(d => Math.max(d.y0 * radius, d.y1 * radius * 1.08));
   
     // Create the SVG container.
     const svg = d3.select(svgElement)
@@ -180,10 +186,29 @@ export function createChart(svgElement, data, options) {
       });
   }
   
-  
     // Handle zoom on click.
     function clicked(event, p) {
       event.stopPropagation();
+        // Determine if the segment is already in "selected" (popped-out) state
+        const isSelected = d3.select(this).classed('selected');
+        
+        // Reset all segments to their default state
+        svg.selectAll("path")
+            .classed('selected', false)
+            .attr('d', d => arc(d.current));
+        
+        // If the clicked segment was not already selected, pop it out
+        if (!isSelected) {
+            d3.select(this)
+                .classed('selected', true)
+                .attr('d', d => arcSelected(d.current))
+                // .attr("fill", d => "red"); // Change color or apply any other indicator as needed
+        }
+        
+        // Display details if a leaf node is selected, otherwise clear details
+        if (!p.children) {
+            displaySunscreenDetails(p);
+        }
 
       if (p.children) {
         svg.selectAll(".sunscreen-details").remove();
@@ -219,8 +244,6 @@ export function createChart(svgElement, data, options) {
           }).transition(t)
             .attr("fill-opacity", d => +labelVisible(d.target))
             .attrTween("transform", d => () => labelTransform(d.current));
-      } else {
-        displaySunscreenDetails(p);
       }
     }
     
