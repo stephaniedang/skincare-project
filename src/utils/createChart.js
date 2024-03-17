@@ -131,59 +131,90 @@ export function createChart(svgElement, data, options) {
         .on("click", clicked);
 
     // handle inner tooltip details
-    function displaySunscreenDetails(node) {
-      svg.selectAll(".sunscreen-details").remove();
+  function displaySunscreenDetails(node) {
+    svg.selectAll(".sunscreen-details").remove();
   
-      // Define the inner area for the details display
-      const detailsGroup = svg.append("g")
-                              .attr("class", "sunscreen-details")
-                              .attr("transform", `translate(0,0)`);
+    let detailsGroup = svg.append("g")
+                            .attr("class", "sunscreen-details")
+                            .attr("transform", `translate(0,0)`);
   
-      const details = [
-          `${node.data.name}`,
-      ];
+    const maxTextWidth = radius * 0.8;
+    let lineHeight = 16;
+    const startY = -radius / 2;
+    const availableHeight = radius;
   
-      // Calculate the available circumference for text
-      const innerRadius = radius * 0.5;
-      const circumference = 2 * Math.PI * innerRadius;
-      const textLength = circumference / 3; // Use a fraction of the circumference for text length
+    // Ensures input is a string and ready for display
+    function formatTextContent(input) {
+      if (Array.isArray(input)) {
+        return input.join(", "); // If it's an array, join elements with a comma
+      } else if (input && typeof input === 'object') {
+        return JSON.stringify(input); // For objects, stringify (customize as needed)
+      } else if (typeof input === 'string') {
+        return input; // If already a string, use as is
+      }
+      return ""; // Default for undefined, null, or other non-string types
+    }
   
-      // Adjust text wrapping based on the available space
-      details.forEach((detail, index) => {
-          let words = detail.split(' ');
-          let line = '';
-          let y = -innerRadius / 2 + index * 20; // Adjust vertical spacing
+    function wrapText(text, y, isName) {
+      let words = formatTextContent(text).split(/\s+/);
+      let line = '';
+      let lineNumber = 0;
+      let textHeight = 0;
   
-          words.forEach((word) => {
-              let testLine = line + word + " ";
-              // Create a temporary text to measure width
-              let tempText = detailsGroup.append("text").text(testLine).attr("x", 0).attr("y", y).style("visibility", "hidden");
-              let testWidth = tempText.node().getComputedTextLength();
-  
-              if (testWidth > textLength && line.length > 0) {
-                  detailsGroup.append("text")
-                      .text(line)
-                      .attr("x", 0)
-                      .attr("y", y)
-                      .attr("text-anchor", "middle")
-                      .style("font-size", "12px");
-  
-                  line = word + " ";
-                  y += 20; // Move to next line
-              } else {
-                  line = testLine;
-              }
-              tempText.remove(); // Remove the temporary text
-          });
-  
-          // Add the last line
+      words.forEach(function(word) {
+        let testLine = line + word + " ";
+        let tempText = detailsGroup.append("text").text(testLine).style("visibility", "hidden");
+        let metrics = tempText.node().getComputedTextLength();
+        if (metrics > maxTextWidth && line !== '') {
           detailsGroup.append("text")
               .text(line)
               .attr("x", 0)
-              .attr("y", y)
+              .attr("y", y + (lineNumber * lineHeight))
               .attr("text-anchor", "middle")
-              .style("font-size", "12px");
+              .style("font-size", isName ? "14px" : "12px")
+              .style("font-weight", isName ? "bold" : "normal")
+              .style("fill", isName ? "#000" : "#555");
+          lineNumber++;
+          line = word + ' ';
+          textHeight += lineHeight;
+        } else {
+          line = testLine;
+        }
+        tempText.remove();
       });
+  
+      // Add the last (or only) line if it's not empty
+      if (line.trim() !== '') {
+        detailsGroup.append("text")
+            .text(line)
+            .attr("x", 0)
+            .attr("y", y + (lineNumber * lineHeight))
+            .attr("text-anchor", "middle")
+            .style("font-size", isName ? "14px" : "12px")
+            .style("font-weight", isName ? "bold" : "normal")
+            .style("fill", isName ? "#000" : "#555");
+        textHeight += lineHeight;
+      }
+      
+        return textHeight; // Return the total height used by this text
+      }
+  
+    // Initial wrap attempt
+    let usedHeight = wrapText(node.data.name, startY, true) + 5; // Includes space between
+    usedHeight += wrapText(`Features: ${formatTextContent(node.data.features)}`, startY + usedHeight, false);
+
+    // Check if the text exceeds the available space
+    if (usedHeight > availableHeight) {
+      lineHeight = 12; // Reduce line height for re-wrapping
+      svg.selectAll(".sunscreen-details").remove(); // Clear the previous text
+      detailsGroup = svg.append("g")
+                        .attr("class", "sunscreen-details")
+                        .attr("transform", `translate(0,0)`);
+      
+      // Re-wrap with adjusted settings
+      usedHeight = wrapText(node.data.name, startY, true) + 5; // Recalculate usedHeight
+      usedHeight += wrapText(`Features: ${formatTextContent(node.data.features)}`, startY + usedHeight, false);
+    }
   }
   
     // Handle zoom on click.
