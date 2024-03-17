@@ -1,11 +1,11 @@
 import * as d3 from 'd3';
 
 const categoryColors = {
-  "skinType": "#fc7174",
-  "skinConcern": "#eb6859",
-  "spfRange": "#fc8862",
-  "formulationType": "#fda26b",
-  "uvaRating": "#fdbb63",
+  "Skin Type": "#fc7174",
+  "Skin Concern": "#eb6859",
+  "SPF Range": "#fc8862",
+  "Formulation Type": "#fda26b",
+  "UVA Rating": "#fdbb63",
 }
 
 function getNodeColor(node) {
