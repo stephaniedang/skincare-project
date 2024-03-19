@@ -45,7 +45,8 @@ export function formatData(csvData) {
 
   csvData.forEach(row => {
     const productName = row.productName;
-    const productFeatures = processProductFeatures(row);
+    const productFeatures = processProductFeatures(row)
+    const link = row.link;
 
     productFeatures.forEach(feature => {
       // Find the original key from the prettyFeature
@@ -59,7 +60,7 @@ export function formatData(csvData) {
       });
       // Add product with features to the final category
       // Ensure features array in each product node contains prettified names
-      category.children.push({ name: productName, features: productFeatures, value: 1 });
+      category.children.push({ name: productName, features: productFeatures, link: link, value: 1 });
     });
   });
 

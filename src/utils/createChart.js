@@ -79,7 +79,9 @@ export function createChart(svgElement, data, options) {
     // Create the SVG container.
     const svg = d3.select(svgElement)
         .attr("viewBox", [-width / 2, -height / 2, width, width])
-        .style("font", "10px sans-serif");
+        .style("font-size", "10px")
+        .style("font-family", "Lato")
+        .style("font-weight", "700");
   
     // Append the arcs.
     const path = svg.append("g")
@@ -136,11 +138,12 @@ export function createChart(svgElement, data, options) {
   
     let detailsGroup = svg.append("g")
                             .attr("class", "sunscreen-details")
+                            .style("opacity", 0)
                             .attr("transform", `translate(0,0)`);
   
     const maxTextWidth = radius * 0.8;
     let lineHeight = 16;
-    const startY = -radius / 2;
+    const startY = -radius / 2.5;
     const availableHeight = radius;
   
     // Ensures input is a string and ready for display
@@ -155,7 +158,7 @@ export function createChart(svgElement, data, options) {
       return ""; // Default for undefined, null, or other non-string types
     }
   
-    function wrapText(text, y, isName) {
+    function wrapText(text, y, isName, link="") {
       let words = formatTextContent(text).split(/\s+/);
       let line = '';
       let lineNumber = 0;
@@ -165,15 +168,33 @@ export function createChart(svgElement, data, options) {
         let testLine = line + word + " ";
         let tempText = detailsGroup.append("text").text(testLine).style("visibility", "hidden");
         let metrics = tempText.node().getComputedTextLength();
+
         if (metrics > maxTextWidth && line !== '') {
-          detailsGroup.append("text")
-              .text(line)
-              .attr("x", 0)
-              .attr("y", y + (lineNumber * lineHeight))
-              .attr("text-anchor", "middle")
-              .style("font-size", isName ? "14px" : "12px")
-              .style("font-weight", isName ? "bold" : "normal")
-              .style("fill", isName ? "#000" : "#555");
+          if (isName) {
+            // This is where we adjust. Instead of appending text, we append an anchor element and then text.
+            let textElement = detailsGroup.append("a")
+                              .attr("xlink:href", node.data.link)
+                              .attr("target", "_blank")
+                              .style("cursor", "pointer")
+                              .append("text")
+                              .attr("x", 0)
+                              .attr("y", y + (lineNumber * lineHeight))
+                              .attr("text-anchor", "middle")
+                              .style("font-size", "14px")
+                              .style("font-weight", "bold")
+                              .style("fill", "#000")
+                              .text(line.trim()); // Remove trailing space
+          } else {
+            detailsGroup.append("text")
+                        .text(line.trim()) // Remove trailing space
+                        .attr("x", 0)
+                        .attr("y", y + (lineNumber * lineHeight))
+                        .attr("text-anchor", "middle")
+                        .style("font-size", "12px")
+                        .style("font-weight", "normal")
+                        .style("fill", "#555");
+          }
+
           lineNumber++;
           line = word + ' ';
           textHeight += lineHeight;
@@ -184,23 +205,23 @@ export function createChart(svgElement, data, options) {
       });
   
       // Add the last (or only) line if it's not empty
-      if (line.trim() !== '') {
-        detailsGroup.append("text")
-            .text(line)
-            .attr("x", 0)
-            .attr("y", y + (lineNumber * lineHeight))
-            .attr("text-anchor", "middle")
-            .style("font-size", isName ? "14px" : "12px")
-            .style("font-weight", isName ? "bold" : "normal")
-            .style("fill", isName ? "#000" : "#555");
-        textHeight += lineHeight;
-      }
+      // if (line.trim() !== '') {
+      //   detailsGroup.append("text")
+      //       .text(line)
+      //       .attr("x", 0)
+      //       .attr("y", y + (lineNumber * lineHeight))
+      //       .attr("text-anchor", "middle")
+      //       .style("font-size", isName ? "14px" : "12px")
+      //       .style("font-weight", isName ? "bold" : "normal")
+      //       .style("fill", isName ? "#000" : "#555");
+      //   textHeight += lineHeight;
+      // }
       
         return textHeight; // Return the total height used by this text
       }
   
     // Initial wrap attempt
-    let usedHeight = wrapText(node.data.name, startY, true) + 5; // Includes space between
+    let usedHeight = wrapText(node.data.name, startY, true, node.data.link) + 5; // Includes space between
     usedHeight += wrapText(`Features: ${formatTextContent(node.data.features)}`, startY + usedHeight, false);
 
     // Check if the text exceeds the available space
@@ -209,12 +230,17 @@ export function createChart(svgElement, data, options) {
       svg.selectAll(".sunscreen-details").remove(); // Clear the previous text
       detailsGroup = svg.append("g")
                         .attr("class", "sunscreen-details")
+                        .style("opacity", 0)
                         .attr("transform", `translate(0,0)`);
       
       // Re-wrap with adjusted settings
       usedHeight = wrapText(node.data.name, startY, true) + 5; // Recalculate usedHeight
       usedHeight += wrapText(`Features: ${formatTextContent(node.data.features)}`, startY + usedHeight, false);
     }
+
+    detailsGroup.transition()
+    .duration(650)
+    .style("opacity", 1);
   }
   
     // Handle zoom on click.
@@ -232,8 +258,9 @@ export function createChart(svgElement, data, options) {
         if (!isSelected) {
             d3.select(this)
                 .classed('selected', true)
+                .transition()
+                .duration(200)
                 .attr('d', d => arcSelected(d.current))
-                // .attr("fill", d => "red"); // Change color or apply any other indicator as needed
         }
         
         // Display details if a leaf node is selected, otherwise clear details
