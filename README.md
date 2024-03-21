@@ -1,5 +1,5 @@
 # UV Universe: Charting the Brightest in Sun Defense
-## Sunburst Data Visualization of January 2024 Top 100 Sunscreens from Olive Young
+### *Sunburst Data Visualization of January 2024 Top 100 Sunscreens from Olive Young*
 
 ### Overview
 
