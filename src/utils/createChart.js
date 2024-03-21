@@ -1,12 +1,26 @@
 import * as d3 from 'd3';
 
 const categoryColors = {
-  "Skin Type": "#fc7174",
-  "Skin Concern": "#eb6859",
-  "SPF Range": "#fc8862",
-  "Formulation Type": "#fda26b",
-  "UVA Rating": "#fdbb63",
+  "Skin Type": "#946dde",
+  "Skin Concern": "#a66d96",
+  "SPF Range": "#f08554",
+  "Formulation Type": "#de9b59",
+  "UVA Rating": "#eb7457",
 }
+// purple toned
+const specifiedColors = [
+  "#8c73ff",
+  "#ff6040",
+  "#fcb683",
+  "#ed3434",
+  "#f68fff",
+]
+
+// "Skin Type": "#e35c36",
+// "Skin Concern": "#e87c10",
+// "SPF Range": "#fc5b21",
+// "Formulation Type": "#fac184",
+// "UVA Rating": "#fc5e3a",
 
 function getNodeColor(node) {
   if (node.depth === 1) {
@@ -48,7 +62,8 @@ export function createChart(svgElement, data, options) {
     d3.select(svgElement).selectAll("*").remove();
   
     // Create the color scale.
-    const color = d3.scaleOrdinal(d3.quantize(d3.interpolateRainbow, data.children.length + 1));
+    // const color = d3.scaleOrdinal(d3.quantize(d3.interpolateRainbow, data.children.length + 1));
+    const color = d3.scaleOrdinal(specifiedColors);
   
     // Compute the layout.
     const hierarchy = d3.hierarchy(data)
@@ -79,9 +94,8 @@ export function createChart(svgElement, data, options) {
     // Create the SVG container.
     const svg = d3.select(svgElement)
         .attr("viewBox", [-width / 2, -height / 2, width, width])
-        .style("font-size", "10px")
-        .style("font-family", "Lato")
-        .style("font-weight", "700");
+        .style("font-size", "12px")
+        .style("font-family", "Lato");
   
     // Append the arcs.
     const path = svg.append("g")
@@ -89,7 +103,7 @@ export function createChart(svgElement, data, options) {
       .data(root.descendants().slice(1))
       .join("path")
         .attr("fill", d => getNodeColor(d.current))
-        .attr("fill-opacity", d => arcVisible(d.current) ? (d.children ? 0.80 : 0.2) : 0)
+        .attr("fill-opacity", d => arcVisible(d.current) ? (d.children ? 0.9 : 0.6) : 0)
         .attr("pointer-events", d => arcVisible(d.current) ? "auto" : "none")
         .attr("d", d => arc(d.current));
   
@@ -109,6 +123,8 @@ export function createChart(svgElement, data, options) {
       .data(root.descendants().slice(1))
       .join("text")
         .attr("dy", "0.35em")
+        .attr("fill", "#0b090a")
+        .style("font-weight", "700")
         .attr("fill-opacity", d => +labelVisible(d.current))
         .attr("transform", d => labelTransform(d.current))
         .text(d => {
@@ -143,7 +159,7 @@ export function createChart(svgElement, data, options) {
   
     const maxTextWidth = radius * 0.8;
     let lineHeight = 16;
-    const startY = -radius / 2.5;
+    const startY = -radius * 0.5;
     const availableHeight = radius;
   
     // Ensures input is a string and ready for display
@@ -171,28 +187,29 @@ export function createChart(svgElement, data, options) {
 
         if (metrics > maxTextWidth && line !== '') {
           if (isName) {
-            // This is where we adjust. Instead of appending text, we append an anchor element and then text.
             let textElement = detailsGroup.append("a")
-                              .attr("xlink:href", node.data.link)
+                              .attr("href", node.data.link)
                               .attr("target", "_blank")
+                              .attr("rel", "noopener noreferrer")
                               .style("cursor", "pointer")
                               .append("text")
                               .attr("x", 0)
                               .attr("y", y + (lineNumber * lineHeight))
                               .attr("text-anchor", "middle")
                               .style("font-size", "14px")
-                              .style("font-weight", "bold")
-                              .style("fill", "#000")
-                              .text(line.trim()); // Remove trailing space
+                              // .style("font-weight", "bold")
+                              .style("font-style", "italic")
+                              .style("fill", "#ffeccf")
+                              .text(line.trim());
           } else {
             detailsGroup.append("text")
-                        .text(line.trim()) // Remove trailing space
+                        .text(line.trim())
                         .attr("x", 0)
                         .attr("y", y + (lineNumber * lineHeight))
                         .attr("text-anchor", "middle")
                         .style("font-size", "12px")
                         .style("font-weight", "normal")
-                        .style("fill", "#555");
+                        .style("fill", "#ffeccf");
           }
 
           lineNumber++;
@@ -205,17 +222,17 @@ export function createChart(svgElement, data, options) {
       });
   
       // Add the last (or only) line if it's not empty
-      // if (line.trim() !== '') {
-      //   detailsGroup.append("text")
-      //       .text(line)
-      //       .attr("x", 0)
-      //       .attr("y", y + (lineNumber * lineHeight))
-      //       .attr("text-anchor", "middle")
-      //       .style("font-size", isName ? "14px" : "12px")
-      //       .style("font-weight", isName ? "bold" : "normal")
-      //       .style("fill", isName ? "#000" : "#555");
-      //   textHeight += lineHeight;
-      // }
+      if (line.trim() !== '') {
+        detailsGroup.append("text")
+            .text(line)
+            .attr("x", 0)
+            .attr("y", y + (lineNumber * lineHeight))
+            .attr("text-anchor", "middle")
+            .style("font-size", isName ? "14px" : "12px")
+            // .style("font-weight", isName ? "bold" : "normal")
+            .style("fill", isName ? "#ffeccf" : "#ffeccf");
+        textHeight += lineHeight;
+      }
       
         return textHeight; // Return the total height used by this text
       }
@@ -293,7 +310,7 @@ export function createChart(svgElement, data, options) {
             .filter(function(d) {
               return +this.getAttribute("fill-opacity") || arcVisible(d.target);
             })
-              .attr("fill-opacity", d => arcVisible(d.target) ? (d.children ? 0.8 : 0.2) : 0)
+              .attr("fill-opacity", d => arcVisible(d.target) ? (d.children ? 0.9 : 0.6) : 0)
               .attr("pointer-events", d => arcVisible(d.target) ? "auto" : "none") 
               .attrTween("d", d => () => arc(d.current));
     

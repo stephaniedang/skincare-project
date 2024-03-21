@@ -10,7 +10,7 @@
   const options = {
    width: 928,
    height: 928,
-   radius: 100 
+   radius: 115
   }
 
   onMount(async () => {
@@ -32,5 +32,8 @@
 </svg>
 
 <style>
-
+ * {
+  margin: 0;
+  box-sizing: border-box;
+ }
 </style>
