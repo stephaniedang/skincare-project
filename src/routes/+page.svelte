@@ -1,5 +1,5 @@
 <svelte:head>
-	<title>Sunscreen Mandatory</title>
+	<title>UV Universe</title>
 	<link rel="stylesheet" href="/css/fonts.css">
 </svelte:head>
 
