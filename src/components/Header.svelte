@@ -7,17 +7,19 @@
   
   <div class="summary-container">
     <p>
-      Embark on a unique journey through the sun care landscape with our 
+      Embark on a unique journey through the sun care landscape with 
       this interactive sunburst chart that highlights <a href="https://oliveyoung.com/" target="_blank" rel="noopener noreferrer">
-      Olive Young's</a> January 2024 top 100 sunscreens. This digital exploration tool 
+      Olive Young's</a> January 2024 top 100 sunscreens. This explorative tool 
       is your guide to making the world of sun protection a little easier to explore.
     </p>
     <p>
-      With every click, navigate through a curated selection of sunscreens, 
-      discovering the perfect match for your skin. Once you've gotten to the end of a ray,
-      click on sunscreen names to learn more about them on their product pages. 
-      And when you’re ready to trace your steps back, a simple click at the 
-      center makes it all happen.
+      With every click, navigate through a curated selection of sunscreens to 
+      discover the perfect match for your skin. Once you've gotten to the end of a ray,
+      click on one of the names to learn more about its features. If you find yourself
+      ready to say yes to the sunscreen, go ahead and click the name from the center
+      makes it reality.
+      When you’re ready to trace your steps back, a simple click at the 
+      center will do the trick.
     </p>
     <p>
       Let this chart be the starting point of a daily routine that feels 
