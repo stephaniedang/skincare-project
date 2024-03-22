@@ -38,7 +38,7 @@
  * {
   margin: 0;
   box-sizing: border-box;
-  color: blanchedalmond;
+  color: #faf0f4;
  }
  
  .header-container {
@@ -65,7 +65,7 @@
  }
 
  .outro-container {
-  font-weight: 100;
+  font-weight: 200;
   font-style: italic;
  }
 

@@ -1,11 +1,12 @@
 import * as d3 from 'd3';
 
+// color inspiration from this draw: https://www.instagram.com/p/BhAF3_WAqfj/
 const categoryColors = {
-  "Skin Type": "#946dde",
-  "Skin Concern": "#a66d96",
-  "SPF Range": "#f08554",
-  "Formulation Type": "#de9b59",
-  "UVA Rating": "#eb7457",
+  "Skin Type": "#6b6e87",
+  "Skin Concern": "#edadab",
+  "SPF Range": "#cfbcb6",
+  "Formulation Type": "#9c5b4c",
+  "UVA Rating": "#f0d6bd",
 }
 // purple toned
 const specifiedColors = [
@@ -199,7 +200,7 @@ export function createChart(svgElement, data, options) {
                               .style("font-size", "14px")
                               // .style("font-weight", "bold")
                               .style("font-style", "italic")
-                              .style("fill", "#ffeccf")
+                              .style("fill", "#faf0f4")
                               .text(line.trim());
           } else {
             detailsGroup.append("text")
@@ -209,7 +210,7 @@ export function createChart(svgElement, data, options) {
                         .attr("text-anchor", "middle")
                         .style("font-size", "12px")
                         .style("font-weight", "normal")
-                        .style("fill", "#ffeccf");
+                        .style("fill", "#faf0f4");
           }
 
           lineNumber++;
@@ -230,7 +231,8 @@ export function createChart(svgElement, data, options) {
             .attr("text-anchor", "middle")
             .style("font-size", isName ? "14px" : "12px")
             // .style("font-weight", isName ? "bold" : "normal")
-            .style("fill", isName ? "#ffeccf" : "#ffeccf");
+            // .style("fill", isName ? "#ffeccf" : "#ffeccf");
+            .style("fill", "#faf0f4")
         textHeight += lineHeight;
       }
       

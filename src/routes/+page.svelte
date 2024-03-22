@@ -25,7 +25,7 @@
 	}
 
 	:global(body) {
-		background-color: #27476e;
+		background-color: #202336;
 		margin: 0;
 	}
 
