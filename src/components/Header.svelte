@@ -123,11 +123,11 @@
       }
 
       .title {
-        font-size: 0.92em; 
+        font-size: 0.82em; 
       }
       
       p {
-        font-size: 0.68em;
+        font-size: 0.64em;
         padding: 0.5em 0;
       }
     }
