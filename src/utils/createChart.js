@@ -230,6 +230,7 @@ export function createChart(svgElement, data, options) {
             .attr("y", y + (lineNumber * lineHeight))
             .attr("text-anchor", "middle")
             .style("font-size", isName ? "14px" : "12px")
+            .style("font-style", isName ? "italic" : "normal")
             // .style("font-weight", isName ? "bold" : "normal")
             // .style("fill", isName ? "#ffeccf" : "#ffeccf");
             .style("fill", "#faf0f4")
