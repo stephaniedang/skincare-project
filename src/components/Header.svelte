@@ -117,6 +117,21 @@
     }
   }
 
+  @media screen and (max-width: 690px) {
+      .header-container {
+        padding: 2.5em 2em 0 2em;
+      }
+
+      .title {
+        font-size: 0.82em; 
+      }
+      
+      p {
+        font-size: 0.64em;
+        padding: 0.5em 0;
+      }
+  }
+
   @media screen and (max-width: 430px) {
       .header-container {
         padding: 2.5em 2em 0 2em;
