@@ -8,24 +8,13 @@
   // chart variables
   let svgElement;
   let data;
-  let width, height;
 
   // Store for window dimensions
-  const windowWidth = writable(window.innerWidth);
-
-  // Update windowWidth on resize
-  window.addEventListener('resize', () => {
-    windowWidth.set(window.innerWidth);
-  });
+  const windowWidth = writable(0);
 
   // Derived store to calculate radius based on window width
   const radius = derived(windowWidth, $windowWidth => {
-    // Larger radius for smaller screens
-    if ($windowWidth <= 430) {
-      return 145; 
-    } else {
-      return 115; // Default radius for larger screens
-    }
+    return $windowWidth <= 500 ? 145 : 115;
   });
 
   let options = derived(radius, $radius => ({
@@ -35,20 +24,27 @@
   }));
 
   onMount(async () => {
+    windowWidth.set(window.innerWidth);
+    const resizeListener = () => {
+      windowWidth.set(window.innerWidth);
+    };
+    window.addEventListener('resize', resizeListener);
+
     try {
       const csvData = await d3.csv('data/sunscreen.csv');
       data = formatData(csvData);
-      radius.subscribe($radius => {
-        if (data && svgElement) {
-          createChart(svgElement, data, { width, height, radius: $radius });
-        }
-      });
     } catch (error) {
       console.error('Error loading or processing data:', error);
     }
+
+    return () => {
+      window.removeEventListener('resize', resizeListener);
+    };
   });
 
-  $: data && $options && createChart(svgElement, data, $options);
+  $: if (data && svgElement && $options) {
+    createChart(svgElement, data, $options);
+  }
 </script>
 
 <svg class="chart" bind:this={svgElement} >

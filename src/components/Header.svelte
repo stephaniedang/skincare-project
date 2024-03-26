@@ -145,5 +145,9 @@
         font-size: 0.64em;
         padding: 0.5em 0;
       }
+
+      .outro-container {
+        padding-bottom: 4.5em;
+      }
     }
 </style>
