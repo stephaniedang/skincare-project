@@ -31,7 +31,7 @@
       The data for this project was pulled from Olive Young's site displaying
       the top 100 ordered sun care products of January 2024. I was inspired to 
       build this visualization during my quest for a new sunscreen and after 
-      exploring all of amazing creations of <a href="https://observablehq.com/@d3/gallery" target="_blank" rel="noopener noreferrer">Mike Bostock.</a>
+      exploring all of the amazing creations of <a href="https://observablehq.com/@d3/gallery" target="_blank" rel="noopener noreferrer">Mike Bostock.</a>
     </p>
   </div>
 </div>
